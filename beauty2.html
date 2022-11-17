@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"
+    />
+    <meta
+      name="description"
+      content="Beauty Camera"
+    />
+    <title>Beauty Camera</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <!-- vconsole -->
+    <script src="https://unpkg.com/vconsole/dist/vconsole.min.js"></script>
+    <script type="text/javascript">
+        new VConsole()
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="vid_container">
+        <!-- <video id="video" autoplay playsinline></video> -->
+        <canvas id="canvas"></canvas>
+        <canvas id="canvasRaw" style="display:none;"></canvas>
+        <div id="video_overlay"></div>
+      </div>
+      <div id="gui_controls">
+        <button id="switchCameraButton" name="switch Camera" type="button" aria-pressed="false"></button>
+        <button id="takePhotoButton" name="take Photo" type="button"></button>
+        <button disabled id="switchBeautyButton" name="Switch Beauty" type="button" aria-pressed="false"></button>        
+        <button disabled id="switchStickerButton" name="Switch Sticker" type="button" aria-pressed="false"></button>
+        <button disabled id="switchLipButton" name="Switch Sticker" type="button" aria-pressed="false"></button>
+      </div>
+    </div>
+    <script src="js/adapter.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="AeTimeline.js"></script>
+  </body>
+</html>
