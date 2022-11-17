@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web AeTimeline</title>
+    <link rel="stylesheet" type="text/css" href="style2.css" />
     <!-- vconsole -->
     <script src="https://unpkg.com/vconsole/dist/vconsole.min.js"></script>
     <script type="text/javascript">
@@ -13,19 +14,20 @@
 </head>
 
 <body>
-    <div>
-        <div>
-            <button disabled id="playbackBtn" style="height:44px">播放</button>
-        </div>
-        <div>
+    <div id="container">
+      <div id="vid_container">
             <canvas id="canvas" class="video"></canvas>
             <canvas id="canvasRaw" style="display:none;"></canvas>
             <!-- <audio id="audio" preload="auto">
                 <source src="1989392.mp3" type="audio/mp3">
             </audio> -->
-        </div>
+        <div id="video_overlay"></div>
+      </div>
+      <div id="gui_controls">
+        <button disabled id="playbackBtn" name="playback" type="button" aria-pressed="false"></button>
+      </div>
     </div>
-    <script src="./AeTimeline.js"></script>    
+    <script src="./NeAVEditorTimeline.js"></script>    
     <script type='text/javascript'>
         window.addEventListener("wasmLoaded", () => {
             console.log("wasmLoaded")
@@ -41,6 +43,7 @@
         var audio = null;
         var audioPCMData = null;
         var loadStartTime = -1;
+        var playStatus = 0;
 
         const gl = document.getElementById('canvas').getContext("webgl");
         // Only continue if WebGL is available and working
@@ -115,7 +118,7 @@
             //console.log('GL Error - 2: ' + gl.getError());
             Module._AERenderMV(strPointer, nowPlayTime);//        
             Module._free(strPointer);
-            requestAnimationFrame(render);
+            // requestAnimationFrame(render);
         }
 
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -222,13 +225,26 @@
             canvas.setAttribute('height', mHeight);
             // fixAudioContext();
             playbackBtn.addEventListener("click", () => {
-                Module._AEWebCreateMV();
-                playSound();
-                requestAnimationFrame(render)
-                // setInterval(function(){
-                //     render()
-                // },1000/30);
-            })                   
+                var context = window.audioContext;
+                if (playStatus == 0) {
+                    Module._AEWebCreateMV();
+                    playSound();
+                    setInterval(function(){
+                        render()
+                    },1000/30);
+                    playStatus = 1;
+                    playbackBtn.setAttribute('aria-pressed', true);
+                }else if(playStatus == 1){
+                    context.suspend();
+                    playStatus = 2;
+                    playbackBtn.setAttribute('aria-pressed', false);
+                }
+                else if(playStatus == 2){
+                    context.resume();
+                    playStatus = 1;
+                    playbackBtn.setAttribute('aria-pressed', true);
+                }
+            })
         });
 
     </script>

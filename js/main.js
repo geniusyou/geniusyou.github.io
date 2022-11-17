@@ -370,6 +370,7 @@ function render() {
   Module.HEAPU8[strPointer + strBuffer.length] = 0;
 
   Module._AEWebMakeCurrent(strPointer);
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
   if (texture == null) {
       // Create texture
       console.log('texture is null, Create texture');
@@ -392,7 +393,7 @@ function render() {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
 
   // console.log('GL Error - 1: ' + gl.getError());
-  detectFaceGL();
+  // detectFaceGL();
   // console.log('GL Error - 2: ' + gl.getError());
   Module._AERenderCameraImage(strPointer, textureId, beautyOn==0 );//
   // console.log('GL Error - 3: ' + gl.getError());
