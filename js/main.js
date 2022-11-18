@@ -33,7 +33,7 @@ var textureId = null;
 var canvasTimer = null;
 var rendering = false;
 
-const gl = document.getElementById('canvas').getContext("webgl");
+const gl = document.getElementById('canvas').getContext("webgl", {preserveDrawingBuffer: true});
 // Only continue if WebGL is available and working
 if (gl === null) {
     alert("Unable to initialize WebGL. Your browser or machine may not support it.");
@@ -163,8 +163,7 @@ window.addEventListener("wasmLoaded", () => {
   }
 });
 
-
-document.addEventListener('DOMContentLoaded', function (event) {    
+function setupCamera(){
   var isStreaming = false;
   video = document.createElement("video");
   video.playsInline = true;
@@ -172,22 +171,55 @@ document.addEventListener('DOMContentLoaded', function (event) {
   canvas = document.getElementById('canvas');            
   canvasRaw = document.getElementById('canvasRaw');
   // Wait until the video stream canvas play
-    video.addEventListener('canplay', function(e) {
-        if (!isStreaming) {
-            if (video.videoWidth > 0 && video.videoHeight > 0) {
-                mWidth  = video.videoWidth;
-                mHeight = video.videoHeight;
-            }
-            canvas.setAttribute('width', mWidth);
-            canvas.setAttribute('height', mHeight);
-            console.log("video size is:"+ video.videoWidth + "x" + video.videoHeight);
-            console.log("set canvas size:"+ mWidth + "x" + mHeight);
-            isStreaming = true;
-
-            canvasRaw.setAttribute('width', mWidth);
-            canvasRaw.setAttribute('height', mHeight);                    
+  video.addEventListener('canplay', function(e) {
+    if (!isStreaming) {
+        if (video.videoWidth > 0 && video.videoHeight > 0) {
+            mWidth  = video.videoWidth;
+            mHeight = video.videoHeight;
         }
-    }, false);
+        canvas.setAttribute('width', mWidth);
+        canvas.setAttribute('height', mHeight);
+        console.log("video size is:"+ video.videoWidth + "x" + video.videoHeight);
+        console.log("set canvas size:"+ mWidth + "x" + mHeight);
+        isStreaming = true;
+
+        canvasRaw.setAttribute('width', mWidth);
+        canvasRaw.setAttribute('height', mHeight);                    
+    }
+  }, false);
+}
+
+document.addEventListener('DOMContentLoaded', function (event) {    
+  var ua = navigator.userAgent.toLowerCase()
+  var isWXWork = ua.match(/wxwork/i) == 'wxwork'
+  var isWeixin = !isWXWork && ua.match(/micromessenger/i) == 'micromessenger'
+  var isMobile = false
+  var isDesktop = false
+  if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|IEMobile)/i)) {
+    isMobile = true
+  } else {
+    isDesktop = true
+  }
+  if(isWeixin){
+    wx.config({
+      // debug: true, // 调试时可开启
+      appId: 'wx0f536377d37b1f4c', // <!-- replace -->
+      timestamp: 0, // 必填，填任意数字即可
+      nonceStr: 'nonceStr', // 必填，填任意非空字符串即可
+      signature: 'signature', // 必填，填任意非空字符串即可
+      jsApiList: ['chooseImage'], // 必填，随意一个接口即可 
+      openTagList:['wx-open-launch-weapp'], // 填入打开小程序的开放标签名
+    });
+    wx.ready(function(){
+      setupCamera();
+    }); 
+    wx.error(function(res){
+      console.log(res);
+    });    
+  }
+  else{
+    setupCamera();
+  }
 });
 
 function initCameraUI() {
@@ -297,15 +329,11 @@ function initCameraStream() {
     window.stream = null;
   }
 
-  // we ask for a square resolution, it will cropped on top (landscape)
-  // or cropped at the sides (landscape)
-  var size = 1280;
-
   var constraints = {
     audio: false,
     video: {
-      width: { ideal: size },
-      height: { ideal: size },
+      width: 1280,
+      height: 720,
       //width: { min: 1024, ideal: window.innerWidth, max: 1920 },
       //height: { min: 776, ideal: window.innerHeight, max: 1080 },
       facingMode: currentFacingMode,
@@ -450,6 +478,19 @@ function detectFaceGL (){
 }
 
 function takeSnapshot() {
+  var canvas = document.getElementById('canvas');
+  //var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+  //window.location.href=image;
+  const link = document.createElement('a')
+  link.href = canvas.toDataURL()
+  link.setAttribute('download', 'capture_image' + '.png')
+  link.style.display = 'none'
+  document.body.appendChild(link)
+  link.click()
+}
+
+/*
+function takeSnapshot() {
   // if you'd like to show the canvas add it to the DOM
   var canvas = document.createElement('canvas');
 
@@ -479,6 +520,7 @@ function takeSnapshot() {
     // do something with the image blob
   });
 }
+*/
 
 // https://hackernoon.com/how-to-use-javascript-closures-with-confidence-85cd1f841a6b
 // closure; store this in a variable and call the variable as function

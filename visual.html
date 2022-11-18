@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web AeTimeline</title>
+    <title>黑胶和歌词动效</title>
     <link rel="stylesheet" type="text/css" href="style2.css" />
     <!-- vconsole -->
     <script src="https://unpkg.com/vconsole/dist/vconsole.min.js"></script>
@@ -44,6 +44,7 @@
         var audioPCMData = null;
         var loadStartTime = -1;
         var playStatus = 0;
+        var currentTime = 0;
 
         const gl = document.getElementById('canvas').getContext("webgl");
         // Only continue if WebGL is available and working
@@ -78,7 +79,7 @@
 
             let fps = 0;
             let timeDelta = 0;
-            const currentTime = performance.now();
+            currentTime = performance.now();
 
             if (lastTime) {
                 timeDelta = currentTime - lastTime;
@@ -86,6 +87,13 @@
             }
             lastTime = currentTime;
             timeElapsed +=timeDelta;
+
+            if(loadStartTime == -1) {
+                nowPlayTime = 0;
+            }
+            else if(playStatus == 1){
+                nowPlayTime+=timeDelta;
+            } 
 
             if(timeElapsed >= 5000){
                 fps = Math.round(frameCnt*1000/timeElapsed);
@@ -196,8 +204,7 @@
                         if(loadStartTime == -1){
                             loadStartTime = curPlaybackTime;
                         }
-                        nowPlayTime = curPlaybackTime-loadStartTime;//audioCtx.currentTime * 1000;
-                        Module._AESetAudioDataFloat(audioPCMData, nowPlayTime, 1024);
+                        Module._AESetAudioDataFloat(audioPCMData, curPlaybackTime-loadStartTime, 1024);
                     };
                     if (source.start) {
                         source.start(0);
